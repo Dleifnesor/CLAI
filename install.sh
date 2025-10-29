@@ -86,16 +86,40 @@ install_python_deps() {
     if [ ! -d "venv" ]; then
         print_info "Creating virtual environment..."
         python3 -m venv venv
+        
+        if [ ! -d "venv" ]; then
+            print_error "Failed to create virtual environment"
+            print_info "Trying to install python3-venv..."
+            apt-get update && apt-get install -y python3-venv
+            python3 -m venv venv
+            
+            if [ ! -d "venv" ]; then
+                print_error "Still failed to create virtual environment"
+                exit 1
+            fi
+        fi
+        
+        print_success "Virtual environment created"
     fi
     
     # Activate virtual environment
-    source venv/bin/activate
+    if [ -f "venv/bin/activate" ]; then
+        source venv/bin/activate
+    else
+        print_error "Virtual environment activation script not found"
+        exit 1
+    fi
     
     # Upgrade pip
     pip install --upgrade pip
     
     # Install requirements
-    pip install -r requirements.txt
+    if [ -f "requirements.txt" ]; then
+        pip install -r requirements.txt
+    else
+        print_error "requirements.txt not found"
+        exit 1
+    fi
     
     print_success "Python dependencies installed"
 }
