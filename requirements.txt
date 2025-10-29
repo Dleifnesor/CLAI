@@ -1,0 +1,16 @@
+# Core Dependencies
+ollama>=0.1.0
+rich>=13.0.0
+click>=8.1.0
+pyyaml>=6.0
+python-dotenv>=1.0.0
+structlog>=23.0.0
+aiohttp>=3.9.0
+psutil>=5.9.0
+
+# Tool Integration
+xmltodict>=0.13.0
+python-nmap>=0.7.1
+
+# Utilities
+python-dateutil>=2.8.2

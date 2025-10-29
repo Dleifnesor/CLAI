@@ -1,0 +1,170 @@
+# Kali AI Command Chaining System - Configuration File
+
+# LLM Configuration
+llm:
+  provider: ollama
+  model: huihui_ai/dolphin3-abliterated:8b
+  server:
+    host: localhost  # Set to remote IP during installation, or leave as localhost
+    port: 11434
+  parameters:
+    temperature: 0.7
+    top_p: 0.9
+    max_tokens: 2048
+    num_ctx: 4096  # Context window size
+
+# Safety Configuration
+safety:
+  mode: semi-autonomous  # Options: semi-autonomous, interactive, autonomous
+  require_approval:
+    - exploitation
+    - password_cracking
+    - brute_force
+    - system_modification
+    - wireless_attack
+    - dos_attack
+  blacklist:
+    - "rm -rf /"
+    - "rm -rf /*"
+    - "mkfs"
+    - "dd if=/dev/zero"
+    - ":(){ :|:& };:"  # Fork bomb
+    - "shutdown"
+    - "reboot"
+    - "halt"
+    - "poweroff"
+    - "init 0"
+    - "init 6"
+    - "systemctl poweroff"
+    - "systemctl reboot"
+    - "> /dev/sda"
+    - "wipefs"
+  rate_limits:
+    commands_per_minute: 10
+    max_concurrent: 3
+    scan_rate_limit: 1000  # packets per second for scanning
+
+# Command Execution Configuration
+execution:
+  timeout:
+    default: 300  # 5 minutes
+    scanning: 1800  # 30 minutes for network scans
+    exploitation: 600  # 10 minutes for exploitation attempts
+    password_cracking: 3600  # 1 hour for password cracking
+    vulnerability_scan: 7200  # 2 hours for vulnerability scans
+  output:
+    max_size_mb: 100
+    stream: true
+    buffer_size: 8192
+  working_directory: /tmp/kali-ai-agent
+
+# Logging Configuration
+logging:
+  level: INFO  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  file: logs/kali-ai-agent.log
+  format: json  # json or text
+  rotation: daily  # daily, weekly, size
+  max_size_mb: 100
+  backup_count: 30
+  console_output: true
+
+# Target Configuration
+targets:
+  allowed_networks:
+    - 192.168.1.0/24
+    - 10.0.0.0/8
+    - 172.16.0.0/12
+  excluded_ips:
+    - 192.168.1.1  # Default gateway
+    - 192.168.1.254
+  excluded_ports:
+    - 0  # Reserved
+  scope_validation: true
+
+# Tool Paths (auto-detected during installation)
+tools:
+  paths:
+    # Reconnaissance
+    nmap: /usr/bin/nmap
+    masscan: /usr/bin/masscan
+    netdiscover: /usr/bin/netdiscover
+    dnsenum: /usr/bin/dnsenum
+    fierce: /usr/bin/fierce
+    theharvester: /usr/bin/theHarvester
+    recon-ng: /usr/bin/recon-ng
+    
+    # Vulnerability Scanning
+    openvas: /usr/bin/openvas
+    nikto: /usr/bin/nikto
+    wpscan: /usr/bin/wpscan
+    joomscan: /usr/bin/joomscan
+    zaproxy: /usr/bin/zaproxy
+    
+    # Exploitation
+    msfconsole: /usr/bin/msfconsole
+    searchsploit: /usr/bin/searchsploit
+    
+    # Web Application Testing
+    sqlmap: /usr/bin/sqlmap
+    wfuzz: /usr/bin/wfuzz
+    dirb: /usr/bin/dirb
+    gobuster: /usr/bin/gobuster
+    
+    # Wireless
+    aircrack-ng: /usr/bin/aircrack-ng
+    airodump-ng: /usr/bin/airodump-ng
+    aireplay-ng: /usr/bin/aireplay-ng
+    reaver: /usr/bin/reaver
+    wifite: /usr/bin/wifite
+    
+    # Password Cracking
+    hashcat: /usr/bin/hashcat
+    john: /usr/bin/john
+    hydra: /usr/bin/hydra
+    medusa: /usr/bin/medusa
+    crunch: /usr/bin/crunch
+    
+    # Forensics
+    autopsy: /usr/bin/autopsy
+    volatility: /usr/bin/volatility
+    binwalk: /usr/bin/binwalk
+    foremost: /usr/bin/foremost
+    
+    # Defensive
+    suricata: /usr/bin/suricata
+    snort: /usr/bin/snort
+
+# Session Configuration
+session:
+  auto_save: true
+  save_interval: 60  # seconds
+  session_directory: logs/sessions
+  max_sessions: 100
+  compress_old_sessions: true
+
+# AI Agent Configuration
+agent:
+  max_retries: 3
+  retry_delay: 5  # seconds
+  context_window_size: 10  # number of recent commands to keep in full detail
+  strategy_adjustment_threshold: 3  # failed attempts before strategy adjustment
+  objective_timeout: 7200  # 2 hours max for any objective
+  
+# Performance Configuration
+performance:
+  max_workers: 4
+  async_execution: true
+  cache_tool_checks: true
+  cache_ttl: 3600  # 1 hour
+
+# Reporting Configuration
+reporting:
+  format: json  # json, html, pdf, markdown
+  include_screenshots: false
+  include_raw_output: true
+  severity_levels:
+    - critical
+    - high
+    - medium
+    - low
+    - info
