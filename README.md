@@ -2,54 +2,43 @@
 
 An autonomous AI-powered command chaining system for Kali Linux that integrates with the `huihui_ai/dolphin3-abliterated:8b` language model to execute penetration testing and security assessment workflows intelligently.
 
-## 🎯 Overview
+## Overview
 
 This system accepts high-level security objectives and autonomously generates sequential commands from the complete Kali Purple toolset. Each command is dynamically formulated based on the actual output and results of previous command executions, creating an intelligent, adaptive penetration testing workflow.
 
-### Key Features
-
-- 🤖 **AI-Driven Command Generation**: Leverages dolphin3-abliterated:8b LLM for intelligent decision-making
-- 🔄 **Dynamic Command Chaining**: Each command informed by previous results and discoveries
-- 🛡️ **Safety-First Design**: Multi-layer safety system with command classification and approval workflows
-- 📊 **Real-Time Monitoring**: Beautiful CLI interface with live progress updates
-- 🔧 **Comprehensive Tool Support**: Full Kali Purple toolkit integration
-- 🎯 **Adaptive Strategy**: Automatically adjusts approach based on results and obstacles
-- 📝 **Complete Audit Trail**: Full command history and session persistence
-- 🔐 **Semi-Autonomous Mode**: Auto-execute safe reconnaissance, require approval for exploitation
-
-## 🏗️ Architecture
+##  Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                     User Input: Objective                    │
+│                     User Input: Objective                   │
 └───────────────────────────┬─────────────────────────────────┘
                             │
                             ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                      CLI Interface                           │
+│                      CLI Interface                          │
 │  • Rich formatting  • Progress display  • User prompts      │
 └───────────────────────────┬─────────────────────────────────┘
                             │
                             ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                      AI Agent Core                           │
+│                      AI Agent Core                          │
 │  • Objective parsing  • Goal decomposition  • Orchestration │
 └─────┬──────────────┬──────────────┬──────────────┬──────────┘
       │              │              │              │
       ▼              ▼              ▼              ▼
 ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐
 │   LLM    │  │ Command  │  │  Safety  │  │  State   │
-│Integration│  │Execution │  │Validator │  │ Manager  │
+│          │  │Execution │  │ Validator│  │ Manager  │
 └──────────┘  └──────────┘  └──────────┘  └──────────┘
       │              │              │              │
       ▼              ▼              ▼              ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                  Kali Purple Toolset                         │
+│                  Kali Purple Toolset                        │
 │  Recon • Vuln Scan • Exploit • WebApp • Wireless • More     │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### Prerequisites
 
@@ -163,7 +152,7 @@ clai "audit wireless networks in the area"
 4. Password strength testing
 5. Security recommendations
 
-## 🛡️ Safety Features
+##  Safety Features
 
 ### Command Classification
 
@@ -194,22 +183,22 @@ When a high-risk command is generated:
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│ ⚠️  High-Risk Command Detected                      │
+│   High-Risk Command Detected                        │
 ├─────────────────────────────────────────────────────┤
-│ Command: msfconsole -x "use exploit/..."           │
+│ Command: msfconsole -x "use exploit/..."            │
 │ Tool: Metasploit Framework                          │
 │ Risk Level: HIGH                                    │
 │                                                     │
-│ Reasoning: Attempting to exploit discovered        │
-│ vulnerability CVE-2023-XXXX on target service      │
+│ Reasoning: Attempting to exploit discovered         │
+│ vulnerability CVE-2023-XXXX on target service       │
 │                                                     │
-│ Expected Outcome: Gain shell access to target      │
+│ Expected Outcome: Gain shell access to target       │
 ├─────────────────────────────────────────────────────┤
-│ Execute this command? [y/N]:                       │
+│ Execute this command? [y/N]:                        │
 └─────────────────────────────────────────────────────┘
 ```
 
-## 🔧 Supported Tools
+##  Supported Tools
 
 ### Reconnaissance
 - **nmap**: Network scanning and service detection
@@ -263,7 +252,7 @@ When a high-risk command is generated:
 - **OSSEC**: Host-based intrusion detection
 - **Wazuh**: Security monitoring platform
 
-## 🎨 CLI Interface
+##  CLI Interface
 
 The system features a beautiful, informative CLI interface:
 
@@ -272,17 +261,17 @@ The system features a beautiful, informative CLI interface:
 ║           Kali AI Command Chaining System                ║
 ╚══════════════════════════════════════════════════════════╝
 
-📋 Security Objective
+ Security Objective
 ┌──────────────────────────────────────────────────────────┐
 │ Perform comprehensive network reconnaissance of          │
 │ 192.168.1.0/24                                           │
 └──────────────────────────────────────────────────────────┘
 
-🤖 AI Agent Status: Executing
+ AI Agent Status: Executing
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Progress: ████████████████░░░░░░░░░░░░░░░░░░░░ 40%
 
-💻 Current Command
+ Current Command
 ┌──────────────────────────────────────────────────────────┐
 │ nmap -sV -p- 192.168.1.0/24                              │
 │ Tool: Nmap                                               │
@@ -290,7 +279,7 @@ Progress: ████████████████░░░░░░░�
 │ identify all open ports and service versions             │
 └──────────────────────────────────────────────────────────┘
 
-📊 Discoveries
+ Discoveries
 ┌─────────────┬──────────────────────────┬──────────────┐
 │ Type        │ Details                  │ Severity     │
 ├─────────────┼──────────────────────────┼──────────────┤
@@ -301,7 +290,7 @@ Progress: ████████████████░░░░░░░�
 └─────────────┴──────────────────────────┴──────────────┘
 ```
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 kali-ai-agent/
@@ -330,7 +319,7 @@ kali-ai-agent/
 └── logs/                    # Runtime logs
 ```
 
-## 🔍 How It Works
+##  How It Works
 
 ### 1. Objective Parsing
 The AI agent analyzes your security objective and breaks it down into actionable goals:
@@ -377,15 +366,6 @@ Result: CVE-2023-XXXX RCE vulnerability found
 Command 4: [Requires Approval] msfconsole -x "use exploit/..."
 ```
 
-## 🔐 Security Considerations
-
-### Authorized Use Only
-This tool is designed for:
-- ✅ Authorized penetration testing
-- ✅ Security research in lab environments
-- ✅ Educational purposes
-- ✅ Red team exercises with permission
-
 **Never use against systems without explicit authorization.**
 
 ### Scope Management
@@ -411,7 +391,7 @@ All commands are logged with:
 
 Logs are stored in: `logs/sessions/<session-id>.json`
 
-## 📚 Documentation
+##  Documentation
 
 - [Installation Guide](docs/installation.md)
 - [Usage Guide](docs/usage.md)
@@ -422,7 +402,7 @@ Logs are stored in: `logs/sessions/<session-id>.json`
 - [API Documentation](docs/api.md)
 - [Troubleshooting](docs/troubleshooting.md)
 
-## 🧪 Testing
+##  Testing
 
 ```bash
 # Run all tests
@@ -438,10 +418,6 @@ pytest --cov=src tests/
 # Run safety tests
 pytest tests/test_safety.py -v
 ```
-
-## 🤝 Contributing
-
-Contributions are welcome! Please read our contributing guidelines and submit pull requests.
 
 ### Development Setup
 
@@ -464,47 +440,5 @@ pre-commit install
 pytest
 ```
 
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## ⚠️ Disclaimer
-
-This tool is provided for educational and authorized security testing purposes only. Users are responsible for complying with all applicable laws and regulations. The authors assume no liability for misuse or damage caused by this tool.
-
-## 🙏 Acknowledgments
-
-- Kali Linux team for the comprehensive security toolkit
-- Ollama team for the LLM infrastructure
-- dolphin3-abliterated model creators
-- Open source security community
-
-## 📧 Contact
-
-- **Issues**: [GitHub Issues](https://github.com/Dleifnesor/CLAI/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/Dleifnesor/CLAI/discussions)
-- **Security**: security@example.com
-
-## 🗺️ Roadmap
-
-### Version 1.0 (Current)
-- ✅ Core AI agent functionality
-- ✅ Basic tool integration
-- ✅ Safety system
-- ✅ CLI interface
-
-### Version 1.1 (Planned)
-- [ ] Web dashboard
-- [ ] Advanced reporting
-- [ ] Custom tool plugins
-- [ ] Multi-target support
-
-### Version 2.0 (Future)
-- [ ] Collaborative multi-agent workflows
-- [ ] Machine learning for pattern recognition
-- [ ] Cloud execution support
-- [ ] Compliance framework integration
-
----
 
 **Built with ❤️ for the security community**
