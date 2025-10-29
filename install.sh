@@ -82,18 +82,23 @@ check_requirements() {
 install_python_deps() {
     print_info "Installing Python dependencies..."
     
+    # Check if venv exists but is corrupted
+    if [ -d "venv" ] && [ ! -f "venv/bin/activate" ]; then
+        print_warning "Corrupted virtual environment detected, removing..."
+        rm -rf venv
+    fi
+    
     # Create virtual environment
     if [ ! -d "venv" ]; then
         print_info "Creating virtual environment..."
-        python3 -m venv venv
         
-        if [ ! -d "venv" ]; then
-            print_error "Failed to create virtual environment"
-            print_info "Trying to install python3-venv..."
-            apt-get update && apt-get install -y python3-venv
-            python3 -m venv venv
+        # Try to create venv
+        if ! python3 -m venv venv 2>/dev/null; then
+            print_warning "Failed to create virtual environment, installing python3-venv..."
+            apt-get update -qq && apt-get install -y python3-venv python3-pip
             
-            if [ ! -d "venv" ]; then
+            # Retry
+            if ! python3 -m venv venv; then
                 print_error "Still failed to create virtual environment"
                 exit 1
             fi
@@ -102,13 +107,21 @@ install_python_deps() {
         print_success "Virtual environment created"
     fi
     
-    # Activate virtual environment
-    if [ -f "venv/bin/activate" ]; then
-        source venv/bin/activate
-    else
-        print_error "Virtual environment activation script not found"
-        exit 1
+    # Verify activation script exists
+    if [ ! -f "venv/bin/activate" ]; then
+        print_error "Virtual environment activation script not found at venv/bin/activate"
+        print_info "Removing corrupted venv and retrying..."
+        rm -rf venv
+        python3 -m venv venv
+        
+        if [ ! -f "venv/bin/activate" ]; then
+            print_error "Failed to create working virtual environment"
+            exit 1
+        fi
     fi
+    
+    # Activate virtual environment
+    source venv/bin/activate
     
     # Upgrade pip
     pip install --upgrade pip
