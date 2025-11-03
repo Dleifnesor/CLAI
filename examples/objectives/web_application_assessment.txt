@@ -1,0 +1,1 @@
+Assess the security of the web application at https://target.example.com including directory enumeration, vulnerability scanning, and testing for common web vulnerabilities like SQL injection and XSS

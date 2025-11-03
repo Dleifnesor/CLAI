@@ -1,0 +1,1 @@
+Audit wireless networks in the area to identify security weaknesses including WEP/WPA vulnerabilities and weak passwords

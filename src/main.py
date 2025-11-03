@@ -88,6 +88,13 @@ async def run_objective(objective: str, config_path: str = None, verbose: bool =
         config_path: Path to configuration file
         verbose: Enable verbose output
     """
+    from src.cli.interface import CLIInterface
+    from src.core.agent import AIAgent
+    from src.core.state import StateManager
+    from src.llm.client import OllamaClient
+    from src.execution.executor import CommandExecutor
+    from src.safety.validator import SafetyValidator
+    
     try:
         # Load configuration
         config = ConfigLoader(config_path)
@@ -96,7 +103,7 @@ async def run_objective(objective: str, config_path: str = None, verbose: bool =
         # Setup logging
         log_config = config.get_logging_config()
         logger = setup_logger(
-            level=log_config.get('level', 'INFO'),
+            level='DEBUG' if verbose else log_config.get('level', 'INFO'),
             log_file=log_config.get('file'),
             format_type=log_config.get('format', 'json'),
             console_output=log_config.get('console_output', True),
@@ -104,31 +111,78 @@ async def run_objective(objective: str, config_path: str = None, verbose: bool =
         
         logger.info("clai_started", objective=objective)
         
-        print(f"\n🎯 Objective: {objective}\n")
-        print("⚠️  Note: Full implementation in progress. Core components ready:")
-        print("   ✓ Configuration system")
-        print("   ✓ LLM integration (Ollama + dolphin3-abliterated:8b)")
-        print("   ✓ Context management")
-        print("   ✓ Logging system")
-        print("\n   ⏳ In development:")
-        print("   - Command execution engine")
-        print("   - Safety validation system")
-        print("   - Tool integration")
-        print("   - AI agent orchestration")
-        print("\nThe system will be fully operational once all components are integrated.")
-        print("See IMPLEMENTATION_STATUS.md for current progress.\n")
+        # Initialize CLI
+        cli = CLIInterface()
+        cli.display.show_banner()
+        cli.display.show_objective(objective)
         
-        # TODO: Initialize and run AI agent
-        # from src.core.agent import AIAgent
-        # agent = AIAgent(config, llm_client, executor, state_manager)
-        # await agent.execute_objective(objective)
+        # Initialize components
+        cli.display.show_info("Initializing AI agent...")
         
-        logger.info("clai_completed", objective=objective)
+        # Create LLM client
+        llm_config = config.get_llm_config()
+        llm_client = OllamaClient(llm_config)
+        
+        # Test connection
+        cli.display.show_info("Testing Ollama connection...")
+        if not await llm_client.test_connection():
+            cli.display.show_error("Failed to connect to Ollama server", "Connection Error")
+            cli.display.show_info(
+                f"Please ensure Ollama is running at {llm_config['server']['host']}:{llm_config['server']['port']}"
+            )
+            sys.exit(1)
+        
+        # Check model availability
+        if not await llm_client.check_model_availability():
+            cli.display.show_warning(
+                f"Model {llm_config['model']} not found. Attempting to pull..."
+            )
+            # Model will be pulled automatically by Ollama on first use
+        
+        # Create safety validator
+        safety_config = config.get_safety_config()
+        safety_validator = SafetyValidator(safety_config)
+        
+        # Create command executor
+        exec_config = config.get_execution_config()
+        executor = CommandExecutor(exec_config, safety_validator)
+        
+        # Create state manager
+        state_manager = StateManager()
+        
+        # Create AI agent
+        agent_config = config.get_agent_config()
+        agent = AIAgent(
+            config=agent_config,
+            llm_client=llm_client,
+            executor=executor,
+            state_manager=state_manager,
+            approval_callback=cli.approval_callback,
+            progress_callback=cli.progress_callback,
+        )
+        
+        cli.display.show_success("AI agent initialized successfully")
+        cli.display.show_info(f"Session ID: {state_manager.session_id}")
+        
+        # Execute objective
+        report = await agent.execute_objective(objective)
+        
+        # Show final report
+        cli.display.show_final_report(report)
+        
+        cli.display.show_success(
+            f"Session saved: logs/sessions/{state_manager.session_id}.json"
+        )
+        
+        logger.info("clai_completed", objective=objective, session_id=state_manager.session_id)
         
     except FileNotFoundError as e:
         print(f"❌ Error: {e}")
         print("Run 'sudo ./install.sh' to set up the system.")
         sys.exit(1)
+    except KeyboardInterrupt:
+        print("\n\n⚠️  Interrupted by user")
+        sys.exit(0)
     except Exception as e:
         print(f"❌ Error: {e}")
         if verbose:
@@ -139,41 +193,100 @@ async def run_objective(objective: str, config_path: str = None, verbose: bool =
 
 def list_sessions():
     """List all saved sessions."""
-    sessions_dir = Path("logs/sessions")
+    from src.cli.interface import CLIInterface
     
-    if not sessions_dir.exists():
-        print("No sessions found.")
-        return
-    
-    sessions = list(sessions_dir.glob("*.json"))
-    
-    if not sessions:
-        print("No sessions found.")
-        return
-    
-    print("\n📋 Saved Sessions:\n")
-    for session_file in sorted(sessions, reverse=True):
-        print(f"  - {session_file.stem}")
-    
-    print(f"\nTotal: {len(sessions)} sessions")
-    print("\nResume a session with: clai --resume <session-id>\n")
+    cli = CLIInterface()
+    cli.display.show_banner()
+    cli.list_sessions()
 
 
-async def resume_session(session_id: str):
+async def resume_session(session_id: str, config_path: str = None, verbose: bool = False):
     """
     Resume a previous session.
     
     Args:
         session_id: Session identifier
+        config_path: Path to configuration file
+        verbose: Enable verbose output
     """
-    print(f"\n🔄 Resuming session: {session_id}\n")
-    print("⚠️  Session resume functionality will be available once")
-    print("   the state management system is fully implemented.\n")
+    from src.cli.interface import CLIInterface
+    from src.core.agent import AIAgent
+    from src.core.state import StateManager
+    from src.llm.client import OllamaClient
+    from src.execution.executor import CommandExecutor
+    from src.safety.validator import SafetyValidator
     
-    # TODO: Implement session resume
-    # from src.core.state import StateManager
-    # state = StateManager.load_session(session_id)
-    # ... continue execution
+    try:
+        # Load configuration
+        config = ConfigLoader(config_path)
+        config.validate()
+        
+        # Setup logging
+        log_config = config.get_logging_config()
+        logger = setup_logger(
+            level='DEBUG' if verbose else log_config.get('level', 'INFO'),
+            log_file=log_config.get('file'),
+            format_type=log_config.get('format', 'json'),
+            console_output=log_config.get('console_output', True),
+        )
+        
+        # Initialize CLI
+        cli = CLIInterface()
+        cli.display.show_banner()
+        cli.display.show_info(f"Resuming session: {session_id}")
+        
+        # Load session state
+        state_manager = StateManager.load(session_id)
+        
+        cli.display.show_objective(state_manager.objective)
+        cli.display.show_info(f"Previous progress: {state_manager.calculate_progress():.1f}%")
+        cli.display.show_info(f"Commands executed: {len(state_manager.command_history)}")
+        
+        # Show current discoveries
+        if any(state_manager.discoveries.values()):
+            cli.display.show_discoveries(state_manager.discoveries)
+        
+        # Initialize components
+        llm_config = config.get_llm_config()
+        llm_client = OllamaClient(llm_config)
+        
+        safety_config = config.get_safety_config()
+        safety_validator = SafetyValidator(safety_config)
+        
+        exec_config = config.get_execution_config()
+        executor = CommandExecutor(exec_config, safety_validator)
+        
+        # Create AI agent with loaded state
+        agent_config = config.get_agent_config()
+        agent = AIAgent(
+            config=agent_config,
+            llm_client=llm_client,
+            executor=executor,
+            state_manager=state_manager,
+            approval_callback=cli.approval_callback,
+            progress_callback=cli.progress_callback,
+        )
+        
+        cli.display.show_success("Session resumed, continuing execution...")
+        
+        # Continue execution
+        report = await agent.execute_objective(state_manager.objective)
+        
+        # Show final report
+        cli.display.show_final_report(report)
+        
+        logger.info("session_resumed_and_completed", session_id=session_id)
+        
+    except FileNotFoundError as e:
+        print(f"❌ Error: Session not found: {session_id}")
+        print("Use 'clai --list-sessions' to see available sessions.")
+        sys.exit(1)
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        if verbose:
+            import traceback
+            traceback.print_exc()
+        sys.exit(1)
 
 
 def main():
@@ -205,7 +318,19 @@ def main():
             print("❌ Error: Session ID required")
             print("Usage: clai --resume <session-id>")
             sys.exit(1)
-        asyncio.run(resume_session(args[1]))
+        
+        # Parse remaining args for config and verbose
+        session_id = args[1]
+        config_path = None
+        verbose = False
+        
+        for i in range(2, len(args)):
+            if args[i] == "--config" and i + 1 < len(args):
+                config_path = args[i + 1]
+            elif args[i] in ["--verbose", "--debug"]:
+                verbose = True
+        
+        asyncio.run(resume_session(session_id, config_path, verbose))
         return
     
     # Check for options
